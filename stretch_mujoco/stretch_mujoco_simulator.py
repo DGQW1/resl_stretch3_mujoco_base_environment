@@ -25,6 +25,7 @@ from stretch_mujoco.datamodels.status_command import (
     CommandCoordinateFrameArrowsViz,
     CommandKeyframe,
     CommandMove,
+    CommandSetEqualityActive,
     StatusCommand,
 )
 import stretch_mujoco.utils as utils
@@ -445,6 +446,18 @@ class StretchMujocoSimulator:
             command = self.data_proxies.get_command()
             command.coordinate_frame_arrows_viz.append(
                 CommandCoordinateFrameArrowsViz(position=position, rotation=rotation, trigger=True)
+            )
+            self.data_proxies.set_command(command)
+
+    @require_connection
+    def set_equality_active(self, name: str, active: bool) -> None:
+        """
+        Enable or disable an equality constraint in the scene by name.
+        """
+        with self._command_lock:
+            command = self.data_proxies.get_command()
+            command.set_equality_active(
+                CommandSetEqualityActive(name=name, active=active, trigger=True)
             )
             self.data_proxies.set_command(command)
 

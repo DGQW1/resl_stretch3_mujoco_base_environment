@@ -30,6 +30,13 @@ class CommandKeyframe:
 
 
 @dataclass
+class CommandSetEqualityActive:
+    name: str
+    active: bool
+    trigger: bool
+
+
+@dataclass
 class CommandCoordinateFrameArrowsViz:
     position: tuple[float, float, float]
     rotation: tuple[float, float, float]
@@ -47,6 +54,7 @@ class StatusCommand:
     base_velocity: CommandBaseVelocity = field(default_factory=lambda:CommandBaseVelocity(0, 0, False))
     keyframe: CommandKeyframe = field(default_factory=lambda:CommandKeyframe("", False))
     coordinate_frame_arrows_viz: list[CommandCoordinateFrameArrowsViz] = field(default_factory=list)
+    equality_active: dict[str, CommandSetEqualityActive] = field(default_factory=dict)
 
 
 
@@ -75,6 +83,10 @@ class StatusCommand:
             self.move_to.pop(actuator.name, None)
             self.move_by.pop(actuator.name, None)
 
+    def set_equality_active(self, command: CommandSetEqualityActive):
+        """Sends a request to enable or disable an equality constraint by name."""
+        self.equality_active[command.name] = command
+
     def to_dict(self):
         return asdict(self)
 
@@ -90,6 +102,10 @@ class StatusCommand:
         }
         command.move_by = {
             key: dataclass_from_dict(CommandMove, val) for key, val in command.move_by.items()  # type: ignore
+        }
+        command.equality_active = {
+            key: dataclass_from_dict(CommandSetEqualityActive, val)
+            for key, val in command.equality_active.items()  # type: ignore
         }
         return command
 

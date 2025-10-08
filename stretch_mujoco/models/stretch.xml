@@ -385,7 +385,15 @@
                               </body>
                             </body>
                           </body>
-                          <body name="link_grasp_center" pos="0 0 0.23" euler="-1.5707963267949 -1.5707963267948 0"> </body>
+                          <body name="link_grasp_center" pos="0 0 0.23" euler="-1.5707963267949 -1.5707963267948 0">
+                            <body name="vacuum_pen" pos="0 0 0" euler="-1.3089969389957472 1.5707963267948966 -1.3089969389957472" gravcomp="1">
+                              <geom name="vacuum_pen_shaft" type="capsule" fromto="0 0 0 0 0 -0.07" size="0.007" rgba="0.2 0.2 0.25 1" contype="1" conaffinity="1" friction="1 0.1 0.01" mass="0.002"/>
+                              <body name="vacuum_pen_tip" pos="0 0 -0.09">
+                                <geom name="vacuum_pen_tip_geom" type="sphere" size="0.01" rgba="0.1 0.1 0.1 1" contype="1" conaffinity="1" friction="1 0.1 0.01" mass="0.001"/>
+                                <site name="vacuum_pen_tip_site" pos="0 0 0" size="0.005" rgba="0.8 0.1 0.1 0.3"/>
+                              </body>
+                            </body>
+                          </body>
                           <!-- Gripper Mechanism -->
                             <body name="link_gripper_slider" euler="0 0 0" pos="0 0 0" gravcomp="1">
                               <joint name="joint_gripper_slide" class="finger_slide"/>

@@ -25,7 +25,12 @@ from stretch_mujoco.mujoco_server_camera_manager import (
     MujocoServerCameraManagerThreaded,
     MujocoServerCameraManagerSync,
 )
-from stretch_mujoco.datamodels.status_command import CommandBaseVelocity, CommandMove, StatusCommand
+from stretch_mujoco.datamodels.status_command import (
+    CommandBaseVelocity,
+    CommandMove,
+    CommandSetEqualityActive,
+    StatusCommand,
+)
 from stretch_mujoco.mujoco_server_sensor_manager import MujocoServerSensorManagerThreaded
 import stretch_mujoco.utils as utils
 from stretch_mujoco.utils import FpsCounter
@@ -537,6 +542,21 @@ class MujocoServer:
         if command_status.keyframe is not None and command_status.keyframe.trigger:
             command_status.keyframe.trigger = False
             self.mjdata.ctrl = self.mjmodel.keyframe(command_status.keyframe.name).ctrl
+
+        for _, command in command_status.equality_active.items():
+            if command.trigger:
+                command.trigger = False
+                eq_id = mujoco.mj_name2id(
+                    self.mjmodel, mujoco._enums.mjtObj.mjOBJ_EQUALITY, command.name
+                )
+                if eq_id == -1:
+                    click.secho(
+                        f"Could not find equality constraint named {command.name}.",
+                        fg="red",
+                    )
+                else:
+                    self.mjdata.eq_active[eq_id] = 1 if command.active else 0
+                    mujoco._functions.mj_forward(self.mjmodel, self.mjdata)
 
         self.base_controller.update()
 
