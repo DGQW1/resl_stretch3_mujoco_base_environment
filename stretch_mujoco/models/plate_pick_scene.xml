@@ -15,11 +15,22 @@
     <material name="wood" texture="wood"/>
     <material name="plate_material" rgba=".9 .9 .95 1"/>
     <texture type="skybox" builtin="gradient" rgb1="0.44 0.80 1.00" rgb2="1 1 1" width="512" height="3072"/>
+
+<texture  name="loadlock_tex" type="2d"
+          file="loadlock/A_small_stainless__1009024855_texture.png"/>
+<material name="loadlock_mat" texture="loadlock_tex" rgba="1 1 1 1"
+          specular="0.5" shininess="0.3"/>
+<mesh     name="loadlock_mesh"
+          file="loadlock/A_small_stainless__1009024855_texture.obj"
+          scale="0.7 0.7 0.7"/>
+
+    <material name="steel" rgba="0.6 0.6 0.65 1" specular="0.7" shininess="0.8"/>
   </asset>
 
   <worldbody>
     <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
     <geom name="floor" size="0 0 0.05" type="plane" material="floor"/>
+
 
     <body name="table" pos="0 -1.0 .24">
       <geom type="box" size=".6 .5 .24" mass="1" material="wood"/>
@@ -31,6 +42,19 @@
     </body>
 
     <body name="drop_target" pos="0.35 -1.0 .52"/>
+
+    <body name="loadlock" pos="-1.9 -1.0 0.80" euler="1.57 0 0">
+      <geom name="loadlock_geom" type="mesh"
+        mesh="loadlock_mesh"
+        material="loadlock_mat"
+        contype="0" 
+        conaffinity="0"
+      />    
+      </body>
+
+      <body name="table2" pos="-2 -1.0 0.24">
+        <geom type="box" size=".6 .5 .24" mass="1" material="steel"/>
+      </body>
   </worldbody>
 
   <equality>
