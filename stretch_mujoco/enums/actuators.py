@@ -23,6 +23,7 @@ class Actuators(Enum):
     right_wheel_vel = 11
     gripper_left_finger = 12
     gripper_right_finger = 13
+    m_lid = 14
 
 
     def get_joint_names_in_mjcf(self) -> list[str]:
@@ -55,7 +56,9 @@ class Actuators(Enum):
             return ["joint_head_pan"]
         if self == Actuators.head_tilt:
             return ["joint_head_tilt"]
-
+        if self == Actuators.m_lid:
+            return ["joint_lid_hinge"]
+        
         raise NotImplementedError(f"Joint names for {self} are not defined.")
     
     @staticmethod
@@ -116,6 +119,8 @@ class Actuators(Enum):
             return Actuators.head_pan
         if joint_name == "joint_head_tilt":
             return Actuators.head_tilt
+        if joint_name == "lid_hinge":
+            return Actuators.m_lid
 
         raise NotImplementedError(f"Actuator for {joint_name} is not defined.")
 

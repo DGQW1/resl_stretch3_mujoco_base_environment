@@ -23,6 +23,19 @@ BASE_APPROACH_DISTANCE = 0.35
 WRIST_PITCH_DOWN = 0
 GRIPPER_CLOSED = -0.25
 
+import math, time, numpy as np
+
+    
+def move_base_to_x(sim: StretchMujocoSimulator, target_x: float,
+                   kp: float = 0.8, tol: float = 0.01, max_step: float = 0.25):
+    for _ in range(200):
+        base_x, base_y, _ = sim.get_base_pose()
+        err = target_x - base_x
+        if abs(err) < tol:
+            break
+        delta = float(np.clip(kp * err, -max_step, max_step))
+        sim.move_by(Actuators.base_translate, delta)
+        sim.wait_while_is_moving(Actuators.base_translate)
 
 def get_tip_position(sim: StretchMujocoSimulator) -> np.ndarray:
     grasp_pose = sim.get_link_pose("link_grasp_center")
@@ -108,6 +121,16 @@ def align_tip(
                 sim.wait_until_at_setpoint(Actuators.wrist_yaw)
 
 
+def move_lid(sim, angle_rad, hold_time=1.0, hz=30):
+    """Move lid to angle_rad (radians) and hold for hold_time seconds."""
+    dt = 1.0 / hz
+    end_time = time.time() + hold_time
+    target = float(angle_rad)
+    while time.time() < end_time:
+        sim.move_to("m_lid", target)
+        time.sleep(dt)
+
+
 def main() -> None:
     sim = StretchMujocoSimulator(scene_xml_path=str(SCENE_PATH))
     sim.start(headless=False)
@@ -130,8 +153,8 @@ def main() -> None:
         sim.wait_until_at_setpoint(Actuators.arm)
         sim.wait_until_at_setpoint(Actuators.lift)
 
-        sim.move_by(Actuators.base_translate, BASE_APPROACH_DISTANCE)
-        sim.wait_while_is_moving(Actuators.base_translate)
+        # sim.move_by(Actuators.base_translate, BASE_APPROACH_DISTANCE)
+        # sim.wait_while_is_moving(Actuators.base_translate)
 
 
         # # arm_sign = estimate_axis_sign(
@@ -145,16 +168,16 @@ def main() -> None:
         )
 
         # Base alignment
-        desired_base_x = 0.02  # align with table center
-        while True:
-            base_x, base_y, _ = sim.get_base_pose()
-            print(base_x)
-            print(" ")
-            error = desired_base_x - base_x
-            if abs(error) < 0.01:
-                break
-            sim.move_by(Actuators.base_translate, error * 0.8)
-            sim.wait_while_is_moving(Actuators.base_translate)
+        # desired_base_x = 0.02  # align with table center
+        # while True:
+        #     base_x, base_y, _ = sim.get_base_pose()
+        #     print(base_x)
+        #     print(" ")
+        #     error = desired_base_x - base_x
+        #     if abs(error) < 0.01:
+        #         break
+        #     sim.move_by(Actuators.base_translate, error * 0.8)
+        #     sim.wait_while_is_moving(Actuators.base_translate)
 
         # Hover over plate
         sim.move_to(Actuators.arm, 0.3)
@@ -173,13 +196,30 @@ def main() -> None:
 
         time.sleep(1.0)
 
-        sim.move_by(Actuators.base_translate, 0.3)
-        sim.wait_while_is_moving(Actuators.base_translate)
+        # sim.move_by(Actuators.base_translate, 0.3)
+        # sim.wait_while_is_moving(Actuators.base_translate)
 
-        raise_tip_to_height(sim, CONTACT_HEIGHT, lift_sign)
+        # raise_tip_to_height(sim, CONTACT_HEIGHT, lift_sign)
+        # sim.set_equality_active("plate_to_pen", False)
+
+        # raise_tip_to_height(sim, SAFE_HEIGHT, lift_sign)
+
+        # ---- go to table2 and drop there ----
+        TABLE2_X = -2.0         
+        APPROACH_OFFSET = 0.50
+        move_base_to_x(sim, TABLE2_X + APPROACH_OFFSET)
+
+        # descend and release at table2
+        move_lid(sim, math.radians(180), hold_time=5)
+
+        sim.move_to(Actuators.arm, 0.6)
+        sim.wait_until_at_setpoint(Actuators.arm)
         sim.set_equality_active("plate_to_pen", False)
 
-        raise_tip_to_height(sim, SAFE_HEIGHT, lift_sign)
+        # lift away safely
+        sim.move_to(Actuators.arm, 0.0)
+        move_lid(sim, math.radians(0), hold_time=5)
+        sim.wait_until_at_setpoint(Actuators.arm)
 
 
     except KeyboardInterrupt:

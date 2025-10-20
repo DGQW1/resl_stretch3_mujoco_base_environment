@@ -1,6 +1,6 @@
 <mujoco model="stretch vacuum plate scene">
   <include file="stretch.xml"/>
-
+  <!-- <option timestep="0.005" />  -->
   <statistic center="0 0 .75" extent="1.5" meansize="0.05"/>
 
   <visual>
@@ -16,13 +16,21 @@
     <material name="plate_material" rgba=".9 .9 .95 1"/>
     <texture type="skybox" builtin="gradient" rgb1="0.44 0.80 1.00" rgb2="1 1 1" width="512" height="3072"/>
 
-<texture  name="loadlock_tex" type="2d"
-          file="loadlock/A_small_stainless__1009024855_texture.png"/>
-<material name="loadlock_mat" texture="loadlock_tex" rgba="1 1 1 1"
-          specular="0.5" shininess="0.3"/>
-<mesh     name="loadlock_mesh"
-          file="loadlock/A_small_stainless__1009024855_texture.obj"
-          scale="0.7 0.7 0.7"/>
+    <texture  name="loadlock_tex" type="2d"
+              file="machine/machine.png"/>
+    <material name="loadlock_mat" texture="loadlock_tex" rgba="1 1 1 1"
+              specular="0.5" shininess="0.3"/>
+    <mesh     name="loadlock_mesh"
+              file="machine/machine.obj"
+              scale="0.7 0.7 0.7"/>
+
+    <texture  name="lid_tex" type="2d"
+              file="machine/lid.png"/>
+    <material name="lid_mat" texture="lid_tex" rgba="1 1 1 1"
+              specular="0.5" shininess="0.3"/>
+    <mesh     name="lid_mesh"
+              file="machine/lid.obj"
+              scale="0.7 0.7 0.7"/>
 
     <material name="steel" rgba="0.6 0.6 0.65 1" specular="0.7" shininess="0.8"/>
   </asset>
@@ -38,26 +46,39 @@
 
     <body name="plate" pos="0 -0.7 .52">
       <freejoint/>
-      <geom name="plate_geom" type="cylinder" size="0.12 0.01" mass="0.3" rgba="0.85 0.85 0.9 1" material="plate_material" friction="0.6 0.1 0.01"/>
+      <geom name="plate_geom" type="cylinder" size="0.06 0.005" mass="0.3" rgba="0.85 0.85 0.9 1" material="plate_material" friction="0.6 0.1 0.01"/>
     </body>
 
     <body name="drop_target" pos="0.35 -1.0 .52"/>
 
-    <body name="loadlock" pos="-1.9 -1.0 0.80" euler="1.57 0 0">
+      <body name="loadlock" pos="-1.9 -1.0 0.80" euler="1.57 3.14 0">
       <geom name="loadlock_geom" type="mesh"
         mesh="loadlock_mesh"
         material="loadlock_mat"
         contype="0" 
         conaffinity="0"
-      />    
+      />
+      <body name="lid" pos="0 0 0" euler="0 0 0">
+        <joint name="lid_hinge" type="hinge" axis="0 0 -1" range="0 1.57" damping="5" armature="0.01"/>
+        <geom type="mesh" mesh="lid_mesh" material="lid_mat" contype="0" conaffinity="0"/>
+      </body>
       </body>
 
-      <body name="table2" pos="-2 -1.0 0.24">
-        <geom type="box" size=".6 .5 .24" mass="1" material="steel"/>
+      <!-- <body name="lid_mocap" mocap="true" pos="-1.9 -1.0 0.80" euler="1.57 3.14 0">
+        <geom type="mesh" mesh="lid_mesh" material="lid_mat"
+              contype="0" conaffinity="0"/>
+      </body> -->
+
+      <body name="table2" pos="-1.9 -1.0 0.24">
+        <geom type="box" size=".7 .3 .24" mass="1" material="steel"/>
       </body>
   </worldbody>
 
   <equality>
     <weld name="plate_to_pen" body1="plate" body2="vacuum_pen_tip" active="false" solref="0.001 1" relpose="0 0 0 1 0 0 0"/>
   </equality>
+
+  <actuator>
+    <position name="m_lid" joint="lid_hinge" kp="400" kv="40" ctrlrange="0 1.57"/>
+  </actuator>
 </mujoco>
