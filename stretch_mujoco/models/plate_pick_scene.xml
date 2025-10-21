@@ -1,7 +1,7 @@
 <mujoco model="stretch vacuum plate scene">
   <include file="stretch.xml"/>
   <!-- <option timestep="0.005" />  -->
-  <statistic center="0 0 .75" extent="1.5" meansize="0.05"/>
+  <statistic center="0 0 .75" extent="3.5" meansize="0.05"/>
 
   <visual>
     <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
@@ -10,7 +10,35 @@
   </visual>
 
   <asset>
-    <material name="floor" rgba=".1 .1 .1 1" reflectance="0.1"/>
+    <texture name="lab_floor_tex" type="2d" builtin="checker"
+             rgb1="0.97 0.97 0.98" rgb2="0.9 0.92 0.95"
+             width="1024" height="1024" mark="edge"
+             markrgb="0.85 0.88 0.93"/>
+    <material name="floor" texture="lab_floor_tex" rgba="0.97 0.97 0.98 1"
+              reflectance="0.25" specular="0.12" shininess="0.35"/>
+
+    <texture name="lab_table_tex" type="2d" builtin="checker"
+             rgb1="0.9 0.92 0.95" rgb2="0.82 0.84 0.88"
+             width="512" height="512" mark="edge"
+             markrgb="0.76 0.79 0.84"/>
+    <material name="lab_table" texture="lab_table_tex" rgba="0.92 0.94 0.97 1"
+              specular="0.28" shininess="0.45" reflectance="0.18"/>
+
+    <texture name="lab_wall_tex" type="2d" builtin="flat"
+             rgb1="0.97 0.98 0.99" width="64" height="64"/>
+    <material name="lab_wall" texture="lab_wall_tex" rgba="0.97 0.98 0.99 1"
+              specular="0.06" shininess="0.18"/>
+
+    <texture name="lab_ceiling_tex" type="2d" builtin="flat"
+             rgb1="0.98 0.98 0.99" width="64" height="64"/>
+    <material name="lab_ceiling" texture="lab_ceiling_tex"
+              rgba="0.98 0.98 0.99 1" specular="0.05" shininess="0.12"/>
+
+    <texture name="lab_light_tex" type="2d" builtin="flat"
+             rgb1="1 1 1" width="32" height="32"/>
+    <material name="lab_light_panel" texture="lab_light_tex"
+              rgba="1 1 1 1" emission="0.8" shininess="0.2"/>
+
     <texture type="2d" name="wood" file="wood.png"/>
     <material name="wood" texture="wood"/>
     <material name="plate_material" rgba=".9 .9 .95 1"/>
@@ -39,9 +67,29 @@
     <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
     <geom name="floor" size="0 0 0.05" type="plane" material="floor"/>
 
+    <!-- Surrounding lab environment -->
+    <body name="lab_room" pos="0 0 0">
+      <geom name="lab_wall_north" type="box" pos="0 -5.0 1.5" size="5.0 0.05 1.5"
+            material="lab_wall" contype="0" conaffinity="0"/>
+      <geom name="lab_wall_south" type="box" pos="0 5.0 1.5" size="5.0 0.05 1.5"
+            material="lab_wall" contype="0" conaffinity="0"/>
+      <geom name="lab_wall_east" type="box" pos="5.0 0 1.5" size="0.05 5.0 1.5"
+            material="lab_wall" contype="0" conaffinity="0"/>
+      <geom name="lab_wall_west" type="box" pos="-5.0 0 1.5" size="0.05 5.0 1.5"
+            material="lab_wall" contype="0" conaffinity="0"/>
+      <geom name="lab_ceiling" type="box" pos="0 0 3.1" size="5.0 5.0 0.05"
+            material="lab_ceiling" contype="0" conaffinity="0"/>
+      <geom name="lab_light_panel_center" type="box" pos="0 0 2.9" size="0.8 1.2 0.01"
+            material="lab_light_panel" contype="0" conaffinity="0"/>
+      <geom name="lab_light_panel_east" type="box" pos="2.5 0 2.9" size="0.8 1.2 0.01"
+            material="lab_light_panel" contype="0" conaffinity="0"/>
+      <geom name="lab_light_panel_west" type="box" pos="-2.5 0 2.9" size="0.8 1.2 0.01"
+            material="lab_light_panel" contype="0" conaffinity="0"/>
+      <!-- Empty lab space kept minimal around the original equipment -->
+    </body>
 
     <body name="table" pos="0 -1.0 .24">
-      <geom type="box" size=".6 .5 .24" mass="1" material="wood"/>
+      <geom type="box" size=".6 .5 .24" mass="1" material="lab_table"/>
     </body>
 
     <body name="plate" pos="0 -0.7 .52">
